@@ -1,0 +1,50 @@
+name: Building docker tar image
+on:
+  push:
+    branches:
+      - gh-actions
+    tags:
+      - 'v*'
+
+jobs:
+  build-docker-tar-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone the repository
+        id: clone-repo
+        uses: actions/checkout@v4
+
+      - name: Setup qemu
+        id: setup-qemu
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup buildx
+        id: setup-buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Building docker image
+        id: building-docker-image
+        run: |
+          cd ${{ github.workspace }}
+          mkdir -p output
+          docker buildx build \
+            --tag inv_sig_helper_x86-64:testing \
+            --platform linux/amd64 \
+            --output "type=tar,dest=${{ github.workspace }}/output/inv_sig_helper_x86-64.tar" \
+            .
+          xz ${{ github.workspace }}/output/inv_sig_helper_x86-64.tar
+          docker buildx build \
+            --tag inv_sig_helper_aarch64:testing \
+            --platform linux/arm64 \
+            --output "type=tar,dest=${{ github.workspace }}/output/inv_sig_helper_aarch64.tar" \
+            .
+          xz ${{ github.workspace }}/output/inv_sig_helper_aarch64.tar
+
+      - name: Creating release
+        id: creating-release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ${{ github.workspace }}/output/*
