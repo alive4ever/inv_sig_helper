@@ -31,13 +31,13 @@ jobs:
           docker buildx build \
             --tag inv_sig_helper_x86-64:testing \
             --platform linux/amd64 \
-            --output "type=tar,dest=${{ github.workspace }}/output/inv_sig_helper_x86-64.tar" \
+            --output "type=docker,dest=${{ github.workspace }}/output/inv_sig_helper_x86-64.tar" \
             .
           xz ${{ github.workspace }}/output/inv_sig_helper_x86-64.tar
           docker buildx build \
             --tag inv_sig_helper_aarch64:testing \
             --platform linux/arm64 \
-            --output "type=tar,dest=${{ github.workspace }}/output/inv_sig_helper_aarch64.tar" \
+            --output "type=docker,dest=${{ github.workspace }}/output/inv_sig_helper_aarch64.tar" \
             .
           xz ${{ github.workspace }}/output/inv_sig_helper_aarch64.tar
 
