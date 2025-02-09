@@ -1,4 +1,4 @@
-name: Building docker tar image for x86_64
+name: Building docker tar image for arm64
 on:
   push:
     tags:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-docker-tar-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - name: Clone the repository
@@ -27,11 +27,12 @@ jobs:
           cd ${{ github.workspace }}
           mkdir -p output
           docker buildx build \
-            --tag localhost/inv_sig_helper:testing \
-            --platform linux/amd64 \
-            --output "type=docker,dest=${{ github.workspace }}/output/inv_sig_helper_x86-64.tar" \
+            --tag localhost/inv_sig_helper:testing-arm64\
+            --platform linux/arm64 \
+            --output "type=docker,dest=${{ github.workspace }}/output/inv_sig_helper_aarch64.tar" \
             .
-          xz ${{ github.workspace }}/output/inv_sig_helper_x86-64.tar
+          xz ${{ github.workspace }}/output/inv_sig_helper_aarch64.tar
+
       - name: Creating release
         id: creating-release
         uses: softprops/action-gh-release@v2
@@ -39,3 +40,4 @@ jobs:
         with:
           files: |
             ${{ github.workspace }}/output/*
+
